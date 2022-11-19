@@ -9,4 +9,4 @@ RUN wget https://ftp.openssl.org/source/openssl-1.1.1k.tar.gz --no-check-certifi
 RUN tar -xzvf openssl-1.1.1k.tar.gz
 RUN cd openssl-1.1.1k; find ./ -type f -exec sed -i -e 's/\#\ define\ OPENSSL\_VERSION\_NUMBER/\#define\ OPENSSL\_VERSION\_NUMBER/g' {}; ./config --prefix=/usr --openssldir=/etc/ssl --libdir=lib no-shared zlib-dynamic; make; make install;
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-RUN git clone https://github.com/kouta-kun/duckdb-hexhammdist; cd duckdb-hexhammdist; git clone https://github.com/duckdb/duckdb; cd duckdb; git pull --tags && git checkout v0.5.1 && cd .. && make;
+RUN git clone https://github.com/kouta-kun/duckdb-external-attach; cd duckdb-hexhammdist; git clone https://github.com/duckdb/duckdb; cd duckdb; git pull --tags && git checkout v0.6.0 && cd .. && make;

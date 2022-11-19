@@ -6,7 +6,7 @@ OSX_BUILD_UNIVERSAL_FLAG=
 ifeq (${OSX_BUILD_UNIVERSAL}, 1)
 	OSX_BUILD_UNIVERSAL_FLAG=-DOSX_BUILD_UNIVERSAL=1
 endif
-BUILD_FLAGS=-DBUILD_TPCH_EXTENSION=1 ${OSX_BUILD_UNIVERSAL_FLAG}
+BUILD_FLAGS=${OSX_BUILD_UNIVERSAL_FLAG} -DBUILD_SHELL=0 -DBUILD_UNITTESTS=0 -DBUILD_TESTING=0
 
 
 pull:
@@ -19,25 +19,25 @@ clean:
 debug: pull
 	mkdir -p build/debug && \
 	cd build/debug && \
-	cmake -DCMAKE_BUILD_TYPE=Debug ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTENSION_STATIC_BUILD=1 -DEXTERNAL_EXTENSION_DIRECTORY=../../duckdb-hexhammdist -B. && \
-	make -j hexhammdist_extension_loadable_extension
+	cmake -DCMAKE_BUILD_TYPE=Debug ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTENSION_STATIC_BUILD=1 -DEXTERNAL_EXTENSION_DIRECTORIES=../../duckdb-external-attach -B. && \
+	make attach_extension_loadable_extension
 
 ext-only: pull
 	mkdir -p build/release && \
 	cd build/release && \
-	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEXTENSION_STATIC_BUILD=0 ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTERNAL_EXTENSION_DIRECTORY=../../duckdb-hexhammdist -B. && \
-	make -j hexhammdist_extension_loadable_extension
+	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEXTENSION_STATIC_BUILD=0 ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTERNAL_EXTENSION_DIRECTORIES=../../duckdb-external-attach -B. && \
+	make attach_extension_loadable_extension
 
 release: pull 
 	mkdir -p build/release && \
 	cd build/release && \
-	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTENSION_STATIC_BUILD=1 -DEXTERNAL_EXTENSION_DIRECTORY=../../duckdb-hexhammdist -B. && \
-	make -j hexhammdist_extension_loadable_extension
+	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTENSION_STATIC_BUILD=1 -DEXTERNAL_EXTENSION_DIRECTORIES=../../duckdb-external-attach -B. && \
+	make attach_extension_loadable_extension
 
 fulltree: pull release
-	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEXTENSION_STATIC_BUILD=1 ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTERNAL_EXTENSION_DIRECTORY=../../duckdb-hexhammdist -B. && \
+	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DEXTENSION_STATIC_BUILD=1 ${BUILD_FLAGS} ../../duckdb/CMakeLists.txt -DEXTERNAL_EXTENSION_DIRECTORIES=../../duckdb-external-attach -B. && \
 	cd build/release && \
-	make -j
+	make
 
 
 test: fulltree
@@ -48,9 +48,10 @@ perf-test: ext-only
 
 format:
 	cp duckdb/.clang-format .
-	clang-format --sort-includes=0 -style=file -i hexhammdist_extension.cpp
+	clang-format --sort-includes=0 -style=file -i attach_duckdb.cpp
 	cmake-format -i CMakeLists.txt
 	rm .clang-format
 
 update:
 	git submodule update --remote --merge
+
